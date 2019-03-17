@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/main_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true"
+        android:background="?attr/colorPrimary" >
+
+    <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fitsSystemWindows="false"
+    >
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+                android:layout_width="match_parent"
+                app:layout_scrollFlags="noScroll"
+                app:scrimAnimationDuration="100"
+                android:layout_height="match_parent">
+
+            <com.existing.boilerx.common.widgets.AppToolbarLayout
+                    android:id="@+id/toolbar"
+                    style="@style/ToolbarTheme"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    app:popupTheme="@style/AppTheme.PopupOverlay">
+
+                <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal">
+
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                            android:layout_width="@dimen/default_icon_size_x"
+                            android:layout_height="@dimen/default_icon_size_x"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginStart="@dimen/default_padding_margin_x"
+                            android:tint="@color/nextdroid_color"
+                            app:srcCompat="@mipmap/ic_launcher"/>
+
+                    <androidx.legacy.widget.Space
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"/>
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                            android:id="@+id/ic_reload"
+                            style="@style/AppIconToolbar"
+                            android:layout_gravity="center"
+                            android:layout_marginEnd="@dimen/default_padding_margin"
+                            app:srcCompat="@drawable/ic_autorenew_black"
+                    />
+
+
+                </LinearLayout>
+
+            </com.existing.boilerx.common.widgets.AppToolbarLayout>
+
+
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipe_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fitsSystemWindows="false"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    >
+
+        <com.existing.boilerx.common.widgets.AppRecyclerView
+                android:id="@+id/rv_picture"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:scrollbarStyle="outsideOverlay"
+                android:scrollbars="vertical"/>
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="@dimen/fab_margin"
+            app:srcCompat="@drawable/ic_arrow_upward_black"
+            app:fabSize="normal"
+            app:borderWidth="0dp"
+            app:layout_behavior="com.existing.boilerx.app.module.main.viewUtil.ScrollingFABBehavior"
+    />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+
+
+
+
+
+
+
+

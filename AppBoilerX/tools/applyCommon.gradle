@@ -1,0 +1,6 @@
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'realm-android'
+apply from: "$project.rootDir/tools/config.gradle"
+apply from: "$project.rootDir/tools/script-java-code-coverage.gradle"

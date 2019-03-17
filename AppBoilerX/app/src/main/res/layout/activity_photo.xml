@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true"
+        android:fillViewport="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/background_black">
+
+
+        <com.existing.boilerx.common.widgets.AppTextView
+                android:id="@+id/tv_no_content"
+                style="@style/AppTextView.PrimaryFont.Disabled.Headline6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/no_content"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/photo"
+                tools:visibility="visible"/>
+
+        <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/photo"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:scaleType="centerCrop"
+                android:adjustViewBounds="true"
+                android:background="?attr/colorSurface"
+        />
+
+        <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ic_back"
+                style="@style/AppIconToolbar"
+                android:layout_margin="@dimen/default_padding_margin"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_arrow_back_black"
+        />
+
+        <LinearLayout
+                android:id="@+id/container_content"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/photo">
+
+
+            <com.existing.boilerx.common.widgets.AppTextView
+                    android:id="@+id/tv_caption"
+                    style="@style/AppTextView.PrimaryFont.WhiteActive.Headline6"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/default_padding_margin"
+                    tools:text="Caption"/>
+
+            <LinearLayout
+                    android:id="@+id/container_camera"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/ic_camera"
+                        style="@style/AppIcon.Small"
+                        android:layout_margin="@dimen/default_padding_margin"
+                        android:tint="@color/md_white"
+                        app:srcCompat="@drawable/ic_camera_black"
+                />
+
+                <com.existing.boilerx.common.widgets.AppTextView
+                        android:id="@+id/tv_camera"
+                        style="@style/AppTextView.PrimaryFont.WhiteActive.Body1"
+                        android:layout_width="wrap_content"
+                        android:layout_marginStart="@dimen/padding_margin_small"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        tools:text="Camera"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                    android:id="@+id/container_lens"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/ic_lens"
+                        style="@style/AppIcon.Small"
+                        android:layout_margin="@dimen/default_padding_margin"
+                        android:tint="@color/md_white"
+                        app:srcCompat="@drawable/ic_lens_black"
+                />
+
+                <com.existing.boilerx.common.widgets.AppTextView
+                        android:id="@+id/tv_lens"
+                        style="@style/AppTextView.PrimaryFont.WhiteActive.Body1"
+                        android:layout_marginStart="@dimen/padding_margin_small"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        tools:text="Lens"/>
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                    android:id="@+id/container_focus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/ic_focus"
+                        style="@style/AppIcon.Small"
+                        android:layout_margin="@dimen/default_padding_margin"
+                        android:tint="@color/md_white"
+                        app:srcCompat="@drawable/ic_focus_length_black"
+                />
+
+                <com.existing.boilerx.common.widgets.AppTextView
+                        android:id="@+id/tv_focus"
+                        style="@style/AppTextView.PrimaryFont.WhiteActive.Body1"
+                        android:layout_marginStart="@dimen/padding_margin_small"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        tools:text="Focus length"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                    android:id="@+id/container_shutter_speed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/ic_shutter_speed"
+                        style="@style/AppIcon.Small"
+                        android:layout_margin="@dimen/default_padding_margin"
+                        android:tint="@color/md_white"
+                        app:srcCompat="@drawable/ic_shutter_speed_black"
+                />
+
+                <com.existing.boilerx.common.widgets.AppTextView
+                        android:id="@+id/tv_shutter_speed"
+                        style="@style/AppTextView.PrimaryFont.WhiteActive.Body1"
+                        android:layout_marginStart="@dimen/padding_margin_small"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        tools:text="Shutter speed"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                    android:id="@+id/container_aperture"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/ic_aperture"
+                        style="@style/AppIcon.Small"
+                        android:layout_margin="@dimen/default_padding_margin"
+                        android:tint="@color/md_white"
+                        app:srcCompat="@drawable/ic_aperture_black"
+                />
+
+                <com.existing.boilerx.common.widgets.AppTextView
+                        android:id="@+id/tv_aperture"
+                        style="@style/AppTextView.PrimaryFont.WhiteActive.Body1"
+                        android:layout_marginStart="@dimen/padding_margin_small"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        tools:text="Aperture"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                    android:id="@+id/container_iso"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/ic_iso"
+                        style="@style/AppIcon.Small"
+                        android:layout_margin="@dimen/default_padding_margin"
+                        android:tint="@color/md_white"
+                        app:srcCompat="@drawable/ic_iso_black"
+                />
+
+                <com.existing.boilerx.common.widgets.AppTextView
+                        android:id="@+id/tv_iso"
+                        style="@style/AppTextView.PrimaryFont.WhiteActive.Body1"
+                        android:layout_marginStart="@dimen/padding_margin_small"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        tools:text="ISO"/>
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>

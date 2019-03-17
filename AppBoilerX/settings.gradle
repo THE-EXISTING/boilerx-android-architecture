@@ -1,0 +1,39 @@
+/** Add module here **/
+includeFlat 'Library'
+
+List<Module> myModuleList = new ArrayList<>()
+myModuleList.with {
+    add(new Module(name: ":AppBoilerX", path: ":app"))
+    add(new Module(name: ":Common", path: "../Common"))
+
+    add(new Module(name: ":base", path: "../Library/base"))
+    add(new Module(name: ":ktx", path: "../Library/ktx"))
+    add(new Module(name: ":security", path: "../Library/security"))
+    add(new Module(name: ":realm", path: "../Library/realm"))
+    add(new Module(name: ":nextwork", path: "../Library/nextwork"))
+}
+
+myModuleList.forEach {
+    addProject(it.getName(), it.getPath())
+}
+
+/** Method call **/
+void addProject(String name, String path) {
+    include name
+    if (path != null) {
+        if( path == ":app"){
+            project(name).projectDir = new File('app')
+        }else{
+            project(name).projectDir = new File(settingsDir, path)
+        }
+    }
+}
+
+class Module {
+    String name
+    String path
+}
+
+
+
+

@@ -1,0 +1,19 @@
+package com.existing.nextwork.engine;
+
+import com.existing.nextwork.engine.model.ResultWrapper;
+
+import org.jetbrains.annotations.Nullable;
+
+/**
+ * Created by「 The Khaeng 」on 13 Oct 2017 :)
+ */
+
+public interface NextworkResourceCreator<T, R extends ResultWrapper<T>> {
+    R loadingFromNetwork( T data, @Nullable Object payload, Boolean isFetch);
+
+    R loadingFromDatabase(@Nullable Object payload);
+
+    R success(T newData, @Nullable Object payload, boolean isCache, Boolean isFetch);
+
+    R error(Throwable error, T oldData, @Nullable Object payload, Boolean isFetch);
+}

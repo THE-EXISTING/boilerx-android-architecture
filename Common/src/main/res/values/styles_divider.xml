@@ -1,0 +1,18 @@
+<resources>
+
+    <style name="Divider.Horizontal" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/default_divider_size</item>
+        <item name="android:minHeight">@dimen/default_divider_size</item>
+        <item name="android:background">?attr/colorDivider</item>
+    </style>
+
+    <style name="Divider.Vertical" parent="">
+        <item name="android:layout_width">@dimen/default_divider_size</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:minHeight">@dimen/default_divider_size</item>
+        <item name="android:background">?attr/colorDivider</item>
+    </style>
+
+
+</resources>

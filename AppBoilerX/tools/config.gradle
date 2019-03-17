@@ -1,0 +1,19 @@
+ext.config = [
+        applicationId    : "com.existing.boilerx.app",
+        versionMajor     : 1,
+        versionMinor     : 0,
+        versionBugFix    : 0,
+        versionClassifier: "",
+        compileSdkVersion: 28,
+        minimumSdkVersion: 19,
+        targetSdkVersion : 28,
+        buildToolsVersion: "28.0.3"
+]
+
+def config = ext.config
+
+ext.ver = [
+]
+
+def ver = ext.ver
+

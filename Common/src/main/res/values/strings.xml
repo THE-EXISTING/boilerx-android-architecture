@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">TabCustomize</string>
+
+    <string name="restart_applicaiton">Restart</string>
+
+    <string name="dismiss">Dismiss</string>
+
+    <string name="alert_error_service_unavailable">Service is unavailable. Please try again later.</string>
+    <string name="alert_error_service_socket_timeout">There was a problem connecting. Please try again.</string>
+    <string name="alert_error_service_no_internet">Please connect the internet.</string>
+
+</resources>
