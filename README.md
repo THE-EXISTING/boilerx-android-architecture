@@ -6,7 +6,7 @@ comming soon...
 
 # Licence
 
-Copyright 2017 Nextzy Technologies Co.,ltd
+Copyright 2019 The Existing Companay
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this work except in compliance with the License. You may obtain a copy of the License in the LICENSE file, or at:
 
@@ -17,11 +17,11 @@ Unless required by applicable law or agreed to in writing, software distributed 
 
 ### Developed By Thai Android developer.
 
-<img src="./resource/nextzy_logo.png" width="500" height="167"/>
+<img src="./resource/existing_logo.png" width="500"/>
 
 
 
-Follow [facebook.com/nextzy](https://www.facebook.com/nextzy) on Facebook page.
-or [Nextzy blog](https://blog.nextzy.me/) at our Medium blog. :)
+Follow [facebook.com/TheExistingCompany](https://www.facebook.com/TheExistingCompany/) on Facebook page.
+or [EXISTING blog](https://existing.co/) at our Medium blog. :)
 
-For contact, shoot me an email at geek@nextzy.com
+For contact, shoot me an email at contact@existing.co
