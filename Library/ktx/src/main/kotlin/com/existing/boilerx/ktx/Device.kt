@@ -45,8 +45,16 @@ val Context.macAddress: String
 val Context.macAddressWithUUID: String
     get() {
         if(BuildConfig.DEBUG) {
-            // TODO1: 26/9/2018 AD random UUID only debug
-            return UUID.randomUUID().toString().toUUID()
+            //random UUID only debug
+            val prefs = getSharedPreferences("debug_pref", Context.MODE_PRIVATE)
+            var uuid = prefs.getString("uuid", null)
+            if (uuid == null) {
+                uuid = UUID.randomUUID().toString().toUUID()
+                val editor = prefs.edit()
+                editor.putString("uuid", uuid)
+                editor.apply()
+            }
+            return uuid
         }
 
 

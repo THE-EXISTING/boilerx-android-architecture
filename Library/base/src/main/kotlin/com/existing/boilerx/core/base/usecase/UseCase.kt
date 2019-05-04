@@ -26,10 +26,8 @@ abstract class UseCase<in PARAMETER, RESULT> {
      *
      * @param parameters the input parameters to run the use case with
      */
-    operator fun invoke(parameters: PARAMETER): LiveData<RESULT> {
-        val liveCallback: MutableLiveData<RESULT> = MutableLiveData()
-        this(parameters, liveCallback)
-        return liveCallback
+    operator fun invoke(parameters: PARAMETER): RESULT {
+        return executeNow(parameters)
     }
 
     /** Executes the use case synchronously  */
@@ -44,5 +42,5 @@ abstract class UseCase<in PARAMETER, RESULT> {
     protected abstract fun execute(parameter: PARAMETER): RESULT
 }
 
-operator fun <RESULT> UseCase<Unit, RESULT>.invoke(): LiveData<RESULT> = this(Unit)
+operator fun <RESULT> UseCase<Unit, RESULT>.invoke():RESULT = this(Unit)
 operator fun <RESULT> UseCase<Unit, RESULT>.invoke(result: MutableLiveData<RESULT>) = this(Unit, result)

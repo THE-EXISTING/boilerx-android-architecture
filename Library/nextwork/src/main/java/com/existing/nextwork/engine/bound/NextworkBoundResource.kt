@@ -12,6 +12,7 @@ import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.FlowableEmitter
 import io.reactivex.FlowableSubscriber
+import io.reactivex.schedulers.Schedulers
 import org.reactivestreams.Subscription
 import retrofit2.Response
 
@@ -33,96 +34,82 @@ open class NextworkBoundResource<
         ResourceType : ResultWrapper<ResultType>>
 @MainThread
 constructor(
-    private val appExecutors: AppExecutors,
-    private val creator: NextworkResourceCreator<ResultType, ResourceType>,
-    @MainThread
-    private val createCall: () -> Flowable<ResponseApiType>,
-    private val onConvertToResultType: (RequestType) -> ResultType,
-    private val onSaveCallResult: (ResultType) -> Unit,
-    @WorkerThread
-    private val onProcessResponse: (ResponseApiType?) -> RequestType? = { response ->
-        val body = response?.body
-        if (body is Response<*>) {
-            body.body() as RequestType?
-        } else {
-            body
-        }
-    },
-    private val onFetchFailed: (Throwable?) -> Unit = { NLog.e(prefixLog, "Load from database: onFetchFailed()") },
-    private val payloadBack: Any? = null,
-    private val prefixLog: String = ""
-) {
+        private val appExecutors: AppExecutors,
+        private val creator: NextworkResourceCreator<ResultType, ResourceType>,
+        @MainThread
+        private val createCall: () -> Flowable<ResponseApiType>,
+        private val onConvertToResultType: (RequestType) -> ResultType,
+        private val onSaveCallResult: (ResultType) -> Unit,
+        @WorkerThread
+        private val onProcessResponse: (ResponseApiType?) -> RequestType? = { response ->
+            val body = response?.body
+            if (body is Response<*>) {
+                body.body() as RequestType?
+            } else {
+                body
+            }
+        },
+        private val onFetchFailed: (Throwable?) -> Unit = { NLog.e(prefixLog, "Load from database: onFetchFailed()") },
+        private val payloadBack: Any? = null,
+        private val prefixLog: String = ""
+           ) {
 
 
     private var result: Flowable<ResourceType> =
-        Flowable.create<ResourceType>({ emitter ->
-            fetchNetwork(emitter)
-        }, BackpressureStrategy.BUFFER)
+            Flowable.create<ResourceType>({ emitter ->
+                                              fetchNetwork(emitter)
+                                          }, BackpressureStrategy.BUFFER)
+
 
     private fun fetchNetwork(emitter: FlowableEmitter<ResourceType>) {
-        val apiResponse = createCall()
-        // we re-attach dbSource as a new source, it will dispatch its latest value quickly
-        emitter.onNext(creator.loadingFromNetwork(null, payloadBack, true))
-        apiResponse
-            .subscribe(object : FlowableSubscriber<ResponseApiType> {
-                override
-                fun onSubscribe(s: Subscription) {
-                    s.request(java.lang.Long.MAX_VALUE)
-                }
-
-                override
-                fun onComplete() {
-                }
-
-                override
-                fun onNext(response: ResponseApiType) {
-                    NLog.i(prefixLog, "CreateCall success: [${response.method}] ${response.url}")
-                    if (response.isSuccessful()) {
-                        appExecutors.diskIO.execute {
-                            val responseResult = onProcessResponse(response)
-                            if (responseResult != null) {
-                                val convertData = onConvertToResultType(responseResult)
-                                onSaveCallResult(convertData)
-                                NLog.i(prefixLog, "Save call result: $convertData")
-                                appExecutors.mainThread.execute {
-                                    emitter.onNext(
-                                        creator.success(
-                                            convertData,
-                                            payloadBack,
-                                            false,
-                                            true
-                                        )
-                                    )
-
-                                }
-                            }
-                        }
-                    } else {
-                        NLog.e(
-                            prefixLog,
-                            "CreateCall fail: [${response.method}] ${response.url} message: ${response.error?.message}"
-                        )
-                        onFetchFailed(response.error)
-                        emitter.onNext(
-                            creator.error(
-                                response.error,
-                                null,
-                                payloadBack,
-                                true
-                            )
-                        )
-                        emitter.onComplete()
+        val api = createCall()
+        emitter.onNext(creator.loadingFromNetwork(payloadBack))
+        val subscribeOn = api.subscribeOn(Schedulers.computation())
+        subscribeOn
+                .subscribe(object : FlowableSubscriber<ResponseApiType> {
+                    override
+                    fun onSubscribe(s: Subscription) {
+                        s.request(java.lang.Long.MAX_VALUE)
                     }
 
-                }
+                    override
+                    fun onComplete() {
+                        emitter.onNext(creator.completed(payloadBack))
+                    }
+
+                    override
+                    fun onNext(response: ResponseApiType) {
+                        NLog.i(prefixLog, "CreateCall next: [${response.method}] ${response.url}")
+                        if (response.isSuccessful()) {
+                            appExecutors.diskIO.execute {
+                                val responseResult = onProcessResponse(response)
+                                if (responseResult != null) {
+                                    val convertData = onConvertToResultType(responseResult)
+                                    onSaveCallResult(convertData)
+                                    NLog.i(prefixLog, "Save call result: $convertData")
+                                    appExecutors.mainThread.execute {
+                                        emitter.onNext( creator.next( convertData, payloadBack, false ) )
+                                    }
+                                }
+                            }
+                        } else {
+                            NLog.e(
+                                    prefixLog,
+                                    "CreateCall fail: [${response.method}] ${response.url} message: ${response.error?.message}"
+                                  )
+                            onFetchFailed(response.error)
+                            emitter.onNext(creator.error(response.error, payloadBack))
+                        }
+
+                    }
 
 
-                override
-                fun onError(e: Throwable) {
-                    emitter.onError(e)
-                }
+                    override
+                    fun onError(e: Throwable) {
+                        emitter.onError(e)
+                    }
 
-            })
+                })
 
     }
 

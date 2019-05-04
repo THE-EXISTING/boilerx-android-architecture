@@ -19,7 +19,7 @@ class LoadPhotoListBeforeIdUseCase(
 
     override
     fun execute(parameters: Parameter, liveData: MediatorLiveData<AppResult<List<PhotoModel>>>) {
-        if (liveData.value?.status == NextworkStatus.SUCCESS || liveData.value == null) {
+        if (liveData.value?.status == NextworkStatus.COMPLETED || liveData.value == null) {
             repository
                 .getPhotoListBeforeId(parameters)
                 .map { resource ->

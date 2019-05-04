@@ -1,6 +1,5 @@
 package com.existing.boilerx.app.repository
 
-import com.existing.nextwork.engine.AppExecutors
 import com.existing.boilerx.app.repository.database.AppDatabase
 import com.existing.boilerx.app.repository.model.PhotoModel
 import com.existing.boilerx.app.repository.network.PhotoApiManager
@@ -11,6 +10,7 @@ import com.existing.boilerx.common.base.repository.base.DefaultNetworkBoundResou
 import com.existing.boilerx.common.base.repository.base.DefaultNetworkCacheBoundResource
 import com.existing.boilerx.common.base.repository.base.DefaultRepository
 import com.existing.boilerx.common.base.repository.base.model.AppResult
+import com.existing.nextwork.engine.AppExecutors
 import io.reactivex.Flowable
 
 /**
@@ -67,13 +67,12 @@ private constructor(
                 database.savePhotoItemList(item)
             },
             onShouldFetch = { data ->
-                trigger.isForceFetch || data == null || data.isEmpty()
+                trigger.isForceFetch || data.isEmpty()
             },
             createCall = { serviceManager.getPhotoList() },
-            onConvertToResultType = { oldData, response ->
+            onConvertToResultType = { response ->
                 ModelConverter.photoResponseListToModelList(response)
-            },
-            isLoadCacheBeforeFetch = true
+            }
         ).toFlowable()
 
 

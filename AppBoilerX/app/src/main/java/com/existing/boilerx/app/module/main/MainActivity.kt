@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.util.ViewPreloadSizeProvider
-import com.existing.nextwork.engine.model.NextworkStatus
 import com.existing.boilerx.app.R
 import com.existing.boilerx.app.module.main.adapter.holder.LoadMoreHolder
 import com.existing.boilerx.app.module.main.adapter.holder.PhotoViewHolder
@@ -29,6 +28,7 @@ import com.existing.boilerx.ktx.delay
 import com.existing.boilerx.ktx.isTablet
 import com.existing.boilerx.ktx.subscribeOnSuccess
 import com.existing.boilerx.ktx.view.setPaddingBottom
+import com.existing.nextwork.engine.model.NextworkStatus
 import com.thekhaeng.pushdownanim.PushDownAnim
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.view_holder_picture.view.*
@@ -224,7 +224,7 @@ class MainActivity : AppMvvmRecyclerViewActivity<BaseViewHolder>() {
                 resource?.status == NextworkStatus.LOADING_FROM_DATABASE -> {
                     // do nothing
                 }
-                resource?.status == NextworkStatus.SUCCESS -> {
+                resource?.status == NextworkStatus.NEXT -> {
                     resource.data?.let {
                         val newDataList = viewModel.getNewDataList(it)
                         calculateDiffUtilAsync(newDataList)
@@ -248,7 +248,7 @@ class MainActivity : AppMvvmRecyclerViewActivity<BaseViewHolder>() {
                 resource?.status == NextworkStatus.LOADING_FROM_DATABASE -> {
                     // do nothing
                 }
-                resource?.status == NextworkStatus.SUCCESS -> {
+                resource?.status == NextworkStatus.NEXT -> {
                     resource.data?.let {
                         val newDataList = viewModel.getBeforeNewDataList(it)
                         calculateDiffUtilAsync(newDataList)
@@ -273,7 +273,7 @@ class MainActivity : AppMvvmRecyclerViewActivity<BaseViewHolder>() {
                 resource?.status == NextworkStatus.LOADING_FROM_DATABASE -> {
                     // do nothing
                 }
-                resource?.status == NextworkStatus.SUCCESS -> {
+                resource?.status == NextworkStatus.NEXT -> {
                     resource.data?.let {
                         val newDataList = viewModel.getAfterNewDataList(it)
                         calculateDiffUtilAsync(newDataList)

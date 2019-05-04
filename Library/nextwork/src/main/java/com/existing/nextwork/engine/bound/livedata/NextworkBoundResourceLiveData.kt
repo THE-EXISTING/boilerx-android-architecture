@@ -57,9 +57,9 @@ constructor(private val appExecutors: AppExecutors,
     private fun fetchFromNetwork() {
         val apiResponse = createCall()
         // we re-attach dbSource as a new source, it will dispatch its latest value quickly
-        result.value = creator.loadingFromNetwork(null, payloadBack, true)
+        result.value = creator.loadingFromNetwork(payloadBack)
         result.addSource(apiResponse) { response ->
-            NLog.i(prefixLog, "CreateCall success: [${response?.method}] ${response?.url}")
+            NLog.i(prefixLog, "CreateCall next: [${response?.method}] ${response?.url}")
             result.removeSource(apiResponse)
 
             if (response?.isSuccessful() == true) {
@@ -73,17 +73,17 @@ constructor(private val appExecutors: AppExecutors,
                             // we specially request a new live data,
                             // otherwise we will get immediately last cached value,
                             // which may not be updated with latest results received from network.
-                            result.setValue(creator.success(data, payloadBack, false, true))
+                            result.setValue(creator.next(data, payloadBack, false))
                         }
                     }
                 }
             } else {
                 NLog.e(
-                    prefixLog,
-                    "CreateCall fail: [${response?.method}] ${response?.url} message: ${response?.error?.message}"
-                )
+                        prefixLog,
+                        "CreateCall fail: [${response?.method}] ${response?.url} message: ${response?.error?.message}"
+                      )
                 onFetchFailed(response?.error)
-                result.setValue(creator.error(response?.error, null, payloadBack, true))
+                result.setValue(creator.error(response?.error, payloadBack))
             }
         }
     }

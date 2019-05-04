@@ -2,11 +2,12 @@ package com.existing.nextwork.engine.model
 
 
 import androidx.annotation.IntDef
+import com.existing.nextwork.engine.model.NextworkStatus.COMPLETED
 import com.existing.nextwork.engine.model.NextworkStatus.CONSUME
 import com.existing.nextwork.engine.model.NextworkStatus.ERROR
 import com.existing.nextwork.engine.model.NextworkStatus.LOADING_FROM_DATABASE
 import com.existing.nextwork.engine.model.NextworkStatus.LOADING_FROM_NETWORK
-import com.existing.nextwork.engine.model.NextworkStatus.SUCCESS
+import com.existing.nextwork.engine.model.NextworkStatus.NEXT
 
 /**
  * Status of a resource that is provided to the UI.
@@ -18,16 +19,14 @@ import com.existing.nextwork.engine.model.NextworkStatus.SUCCESS
 
 object NextworkStatus {
     const val CONSUME = -1
-    const val SUCCESS = 10
-    const val ERROR = 20
-    const val LOADING_FROM_DATABASE = 30
-    const val LOADING_FROM_NETWORK = 40
+    const val NEXT = 10
+    const val COMPLETED = 20
+    const val ERROR = 30
+    const val LOADING_FROM_DATABASE = 40
+    const val LOADING_FROM_NETWORK = 50
 }
 
 
 @Retention(AnnotationRetention.SOURCE)
-@IntDef(SUCCESS, ERROR, LOADING_FROM_DATABASE, LOADING_FROM_NETWORK, CONSUME)
+@IntDef(NEXT, COMPLETED, ERROR, LOADING_FROM_DATABASE, LOADING_FROM_NETWORK, CONSUME)
 annotation class Status
-
-
-

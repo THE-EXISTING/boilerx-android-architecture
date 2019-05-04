@@ -34,39 +34,79 @@ open class NextworkCacheBoundResource<
         ResourceType : ResultWrapper<ResultType>>
 @MainThread
 constructor(
-    private val appExecutors: AppExecutors,
-    private val creator: NextworkResourceCreator<ResultType, ResourceType>,
-    @MainThread
-    private val loadFromDb: () -> Flowable<ResultType>,
-    @MainThread
-    private val onShouldFetch: (ResultType?) -> Boolean,
-    @MainThread
-    private val createCall: () -> Flowable<ResponseApiType>,
-    private val onConvertToResultType: (ResultType?, RequestType) -> ResultType,
-    private val onSaveCallResult: (ResultType) -> Unit,
-    @WorkerThread
-    private val onProcessResponse: (ResponseApiType?) -> RequestType? = { response ->
-        val body = response?.body
-        if (body is Response<*>) {
-            body.body() as RequestType?
-        } else {
-            body
-        }
-    },
-    private val onFetchFailed: (Throwable?) -> Unit = { NLog.e(prefixLog, "Load from database: onFetchFailed()") },
-    private val isLoadCacheBeforeFetch: Boolean = false,
-    private val payloadBack: Any? = null,
-    private val prefixLog: String = ""
-) {
+        private val appExecutors: AppExecutors,
+        private val creator: NextworkResourceCreator<ResultType, ResourceType>,
+        @MainThread
+        private val loadFromDb: () -> Flowable<ResultType>,
+        @MainThread
+        private val onShouldFetch: (List<ResultType?>) -> Boolean,
+        @MainThread
+        private val createCall: () -> Flowable<ResponseApiType>,
+        private val onConvertToResultType: (RequestType) -> ResultType,
+        private val onSaveCallResult: (ResultType) -> Unit,
+        @WorkerThread
+        private val onProcessResponse: (ResponseApiType?) -> RequestType? = { response ->
+            val body = response?.body
+            if (body is Response<*>) {
+                body.body() as RequestType?
+            } else {
+                body
+            }
+        },
+        private val onFetchFailed: (Throwable?) -> Unit = { NLog.e(prefixLog, "Load from database: onFetchFailed()") },
+        private val payloadBack: Any? = null,
+        private val prefixLog: String = ""
+           ) {
 
 
     private var result: Flowable<ResourceType> =
-        Flowable.create<ResourceType>({ emitter ->
-            emitter.onNext(creator.loadingFromDatabase(payloadBack))
-            loadFromDb()
-                // Read from disk on Computation Scheduler
-                .subscribeOn(Schedulers.computation())
-                .subscribe(object : FlowableSubscriber<ResultType> {
+            Flowable.create<ResourceType>({ emitter ->
+                                              emitter.onNext(creator.loadingFromDatabase(payloadBack))
+                                              val dataList = mutableListOf<ResultType>()
+                                              loadFromDb()
+                                                      .subscribeOn(Schedulers.computation())
+                                                      .subscribe(object : FlowableSubscriber<ResultType> {
+                                                          override
+                                                          fun onSubscribe(s: Subscription) {
+                                                              s.request(java.lang.Long.MAX_VALUE)
+                                                          }
+
+                                                          override
+                                                          fun onComplete() {
+                                                              val shouldFetch = onShouldFetch(dataList)
+                                                              NLog.i(prefixLog, "ShouldFetch: $shouldFetch")
+                                                              dataList.clear()
+                                                              if (shouldFetch) {
+                                                                  fetchNetwork(emitter)
+                                                              } else {
+                                                                  emitter.onNext(creator.completed(payloadBack))
+                                                                  emitter.onComplete()
+                                                              }
+                                                          }
+
+                                                          override
+                                                          fun onNext(data: ResultType) {
+                                                              dataList.add(data)
+                                                              NLog.i(prefixLog, "Load from database (old): $data")
+                                                              emitter.onNext(creator.next(data, payloadBack, true))
+                                                          }
+
+                                                          override
+                                                          fun onError(e: Throwable) {
+                                                              emitter.onError(e)
+                                                          }
+
+                                                      })
+
+
+                                          }, BackpressureStrategy.BUFFER)
+
+    private fun fetchNetwork(emitter: FlowableEmitter<ResourceType>) {
+        // we re-attach dbSource as a new source, it will dispatch its latest value quickly
+        val api = createCall()
+        emitter.onNext(creator.loadingFromNetwork(payloadBack))
+        api.subscribeOn(Schedulers.computation())
+                .subscribe(object : FlowableSubscriber<ResponseApiType> {
                     override
                     fun onSubscribe(s: Subscription) {
                         s.request(java.lang.Long.MAX_VALUE)
@@ -74,30 +114,63 @@ constructor(
 
                     override
                     fun onComplete() {
+                        appExecutors.mainThread.execute {
+                            // we specially request a new live data,
+                            // otherwise we will get immediately last cached value,
+                            // which may not be updated with latest results received from network.
+                            loadFromDb()
+                                    .subscribeOn(Schedulers.computation())
+                                    .subscribe(object : FlowableSubscriber<ResultType> {
+                                        override
+                                        fun onSubscribe(s: Subscription) {
+                                            s.request(java.lang.Long.MAX_VALUE)
+                                        }
+
+                                        override
+                                        fun onComplete() {
+                                            emitter.onNext(creator.completed(payloadBack))
+                                            emitter.onComplete()
+                                        }
+
+                                        override
+                                        fun onNext(newData: ResultType) {
+                                            emitter.onNext(creator.next(newData, payloadBack, false))
+                                            NLog.i(prefixLog, "Load from database (new): $newData")
+                                        }
+
+                                        override
+                                        fun onError(e: Throwable) {
+                                            emitter.onError(e)
+                                        }
+
+                                    })
+
+                        }
                     }
 
                     override
-                    fun onNext(data: ResultType) {
-                        NLog.i(prefixLog, "Load from database (old): $data")
-                        val shouldFetch = onShouldFetch(data)
-                        NLog.i(prefixLog, "ShouldFetch: $shouldFetch")
-                        if (shouldFetch) {
-                            if (isLoadCacheBeforeFetch)
-                                emitter.onNext(creator.success(data, payloadBack, true, true))
-                            fetchNetwork(emitter, data)
+                    fun onNext(response: ResponseApiType) {
+                        NLog.i(prefixLog, "CreateCall next: [${response.method}] ${response.url}")
+                        if (response.isSuccessful()) {
+                            appExecutors.diskIO.execute {
+                                val responseResult = onProcessResponse(response)
+                                if (responseResult != null) {
+                                    val convertData = onConvertToResultType(responseResult)
+                                    onSaveCallResult(convertData)
+                                    NLog.i(prefixLog, "Save call result: $convertData")
+                                }
+                            }
                         } else {
-                            emitter.onNext(
-                                creator.success(
-                                    data,
-                                    payloadBack,
-                                    true,
-                                    false
-                                )
-                            )
-                            emitter.onComplete()
+                            NLog.e(
+                                    prefixLog,
+                                    "CreateCall fail: [${response.method}] ${response.url} message: ${response.error?.message}"
+                                  )
+                            onFetchFailed(response.error)
+                            emitter.onNext(creator.error(response.error, payloadBack))
                         }
 
                     }
+
 
                     override
                     fun onError(e: Throwable) {
@@ -105,83 +178,6 @@ constructor(
                     }
 
                 })
-
-
-        }, BackpressureStrategy.BUFFER)
-
-    private fun fetchNetwork(emitter: FlowableEmitter<ResourceType>, oldData: ResultType) {
-        val apiResponse = createCall()
-        // we re-attach dbSource as a new source, it will dispatch its latest value quickly
-        emitter.onNext(creator.loadingFromNetwork(oldData, payloadBack, true))
-        apiResponse
-            .subscribe(object : FlowableSubscriber<ResponseApiType> {
-                override
-                fun onSubscribe(s: Subscription) {
-                    s.request(java.lang.Long.MAX_VALUE)
-                }
-
-                override
-                fun onComplete() {
-                }
-
-                override
-                fun onNext(response: ResponseApiType) {
-                    NLog.i(prefixLog, "CreateCall success: [${response.method}] ${response.url}")
-                    if (response.isSuccessful()) {
-                        appExecutors.diskIO.execute {
-                            val responseResult = onProcessResponse(response)
-                            if (responseResult != null) {
-                                val convertData = onConvertToResultType(oldData, responseResult)
-                                onSaveCallResult(convertData)
-                                NLog.i(prefixLog, "Save call result: $convertData")
-                                appExecutors.mainThread.execute {
-                                    // we specially request a new live data,
-                                    // otherwise we will get immediately last cached value,
-                                    // which may not be updated with latest results received from network.
-                                    loadFromDb()
-                                        .subscribeOn(Schedulers.computation())
-                                        .subscribe { newData ->
-                                            emitter.onNext(
-                                                creator.success(
-                                                    newData,
-                                                    payloadBack,
-                                                    false,
-                                                    true
-                                                )
-                                            )
-                                            emitter.onComplete()
-                                            NLog.i(prefixLog, "Load from database (new): $newData")
-                                        }
-
-                                }
-                            }
-                        }
-                    } else {
-                        NLog.e(
-                            prefixLog,
-                            "CreateCall fail: [${response.method}] ${response.url} message: ${response.error?.message}"
-                        )
-                        onFetchFailed(response.error)
-                        emitter.onNext(
-                            creator.error(
-                                response.error,
-                                oldData,
-                                payloadBack,
-                                true
-                            )
-                        )
-                        emitter.onComplete()
-                    }
-
-                }
-
-
-                override
-                fun onError(e: Throwable) {
-                    emitter.onError(e)
-                }
-
-            })
 
     }
 

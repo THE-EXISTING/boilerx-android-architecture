@@ -9,11 +9,13 @@ import org.jetbrains.annotations.Nullable;
  */
 
 public interface NextworkResourceCreator<T, R extends ResultWrapper<T>> {
-    R loadingFromNetwork( T data, @Nullable Object payload, Boolean isFetch);
+    R loadingFromNetwork( @Nullable Object payload );
 
     R loadingFromDatabase(@Nullable Object payload);
 
-    R success(T newData, @Nullable Object payload, boolean isCache, Boolean isFetch);
+    R completed( @Nullable Object payload);
 
-    R error(Throwable error, T oldData, @Nullable Object payload, Boolean isFetch);
+    R next( T newData, @Nullable Object payload, boolean isCache );
+
+    R error( Throwable error, @Nullable Object payload );
 }

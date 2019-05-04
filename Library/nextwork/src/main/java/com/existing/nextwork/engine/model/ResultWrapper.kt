@@ -6,11 +6,10 @@ package com.existing.nextwork.engine.model
  * @param <T>
 </T> */
 abstract class ResultWrapper<T>(@param:Status @field:Status
-                                   var status: Int,
+                                var status: Int,
                                 val data: T?,
                                 val exception: Throwable?,
                                 val payload: Any?,
-                                val isFetched: Boolean,
                                 val isCached: Boolean) {
 
     override
@@ -20,7 +19,6 @@ abstract class ResultWrapper<T>(@param:Status @field:Status
                 ", message='" + exception +
                 ", data=" + data +
                 ", payload=" + payload +
-                ", isFetched=" + isFetched +
                 ", isCached=" + isCached +
                 '}'.toString()
     }
@@ -33,7 +31,6 @@ abstract class ResultWrapper<T>(@param:Status @field:Status
         val that = other as ResultWrapper<*>?
 
         if (status != that!!.status) return false
-        if (isFetched != that.isFetched) return false
         if (isCached != that.isCached) return false
         if (if (exception != null) exception != that.exception else that.exception != null)
             return false
@@ -47,7 +44,6 @@ abstract class ResultWrapper<T>(@param:Status @field:Status
         result = 31 * result + (exception?.hashCode() ?: 0)
         result = 31 * result + (data?.hashCode() ?: 0)
         result = 31 * result + (payload?.hashCode() ?: 0)
-        result = 31 * result + if (isFetched) 1 else 0
         result = 31 * result + if (isCached) 1 else 0
         return result
     }

@@ -150,14 +150,14 @@ private fun <T> observer(liveData: MutableLiveData<T>): Observer<T> {
 
         override
         fun onNext(t: T) {
-            liveData.postValue(t)
+            liveData.value = t
         }
 
         override
         fun onError(e: Throwable) {
             if (e is NullPointerException) {
                 Timber.e(e, "Null value")
-                liveData.postValue(null)
+                liveData.value = null
             }
         }
 
@@ -184,7 +184,7 @@ private fun <T> maybeObserver(liveData: MutableLiveData<T>): MaybeObserver<T> {
         fun onError(e: Throwable) {
             if (e is NullPointerException) {
                 Timber.e(e, "Null value")
-                liveData.postValue(null)
+                liveData.value = null
             }
         }
 
@@ -205,7 +205,7 @@ private fun <T> completableObserver(liveData: MutableLiveData<T>): CompletableOb
         fun onError(e: Throwable) {
             if (e is NullPointerException) {
                 Timber.e(e, "Null value")
-                liveData.postValue(null)
+                liveData.value = null
             }
         }
 
@@ -217,7 +217,7 @@ private fun <T> singleObserver(liveData: MutableLiveData<T>): SingleObserver<T?>
     return object : SingleObserver<T?> {
         override
         fun onSuccess(t: T) {
-            liveData.postValue(t)
+            liveData.value = t
         }
 
 
@@ -229,7 +229,7 @@ private fun <T> singleObserver(liveData: MutableLiveData<T>): SingleObserver<T?>
         fun onError(e: Throwable) {
             if (e is NullPointerException) {
                 Timber.e(e, "Null value")
-                liveData.postValue(null)
+                liveData.value = null
             }
         }
 
@@ -250,14 +250,14 @@ private fun <T> flowableSubscriber(liveData: MutableLiveData<T>): FlowableSubscr
 
         override
         fun onNext(t: T) {
-            liveData.postValue(t)
+            liveData.value = t
         }
 
         override
         fun onError(e: Throwable) {
             if (e is NullPointerException) {
                 Timber.e(e, "Null value")
-                liveData.postValue(null)
+                liveData.value = null
             }
         }
 
